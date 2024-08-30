@@ -67,7 +67,13 @@ class UserInfoCard extends StatelessWidget {
                     ? CircleAvatar(
                         maxRadius: 64,
                         minRadius: 24,
-                        child: Image.memory(userInfo.image!),
+                        child: Image.memory(
+                          userInfo.image!,
+                          centerSlice: Rect.fromCenter(
+                              center: const Offset(0, 0),
+                              width: 40,
+                              height: 40),
+                        ),
                       )
                     : const SizedBox(),
               ],
