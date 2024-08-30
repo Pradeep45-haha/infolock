@@ -61,28 +61,43 @@ class _NewUserFormState extends State<NewUserForm> {
               ),
             ),
           ),
-          
-          Stack(
-            children: [
-              context.watch<UserDataProvider>().currentProfileImage != null
-                  ? CircleAvatar(
-                      child: Image.memory(context
-                          .watch<UserDataProvider>()
-                          .currentProfileImage!),
-                    )
-                  : Row(
-                      children: [
-                        const Text("Add Profile Picture"),
-                        IconButton(
+          context.watch<UserDataProvider>().currentProfileImage != null
+              ? Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 160,
+                      backgroundImage: MemoryImage(
+                        context.watch<UserDataProvider>().currentProfileImage!,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
                           onPressed: () {
-                            context.read<UserDataProvider>().pickImage();
+                            context.read<UserDataProvider>().removeImage();
                           },
-                          icon: const Icon(Icons.add),
-                        )
-                      ],
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          )),
                     )
-            ],
-          ),
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Add Profile Picture"),
+                    IconButton(
+                      onPressed: () {
+                        context.read<UserDataProvider>().pickImage();
+                      },
+                      icon: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(Icons.add),
+                      ),
+                    )
+                  ],
+                ),
           Padding(
             padding: primaryPadding.copyWith(top: 36),
             child: TextFormField(

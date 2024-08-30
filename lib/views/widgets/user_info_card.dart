@@ -9,12 +9,25 @@ class UserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double maxWidth = MediaQuery.of(context).size.width;
+    double currentWidth = maxWidth > 300 ? 300 : maxWidth ;
+
     return Container(
       decoration: const BoxDecoration(color: Colors.white),
       child: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(color: Colors.white),
+            constraints:
+                BoxConstraints(maxWidth: currentWidth),
+            margin: const EdgeInsets.only(top: 120),
+            padding: const EdgeInsets.only(top: 160),
+            decoration: BoxDecoration(
+              color: Colors.yellowAccent[100],
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+            ),
             child: Column(
               children: [
                 Text(
@@ -29,7 +42,13 @@ class UserInfoCard extends StatelessWidget {
                   style: const TextStyle(color: Colors.black, fontSize: 18),
                 ),
                 Container(
-                  decoration: const BoxDecoration(color: Colors.purple),
+                  decoration: const BoxDecoration(
+                    color: Colors.purple,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -63,22 +82,27 @@ class UserInfoCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                userInfo.image != null
-                    ? CircleAvatar(
-                        maxRadius: 64,
-                        minRadius: 24,
-                        child: Image.memory(
-                          userInfo.image!,
-                          centerSlice: Rect.fromCenter(
-                              center: const Offset(0, 0),
-                              width: 40,
-                              height: 40),
-                        ),
-                      )
-                    : const SizedBox(),
               ],
             ),
-          )
+          ),
+          Positioned(
+            left: currentWidth/2-120,
+            child: userInfo.image != null
+                ? Material(
+                    elevation: 8,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(120),
+                    ),
+                    shadowColor: Colors.purple,
+                    child: CircleAvatar(
+                      radius: 120,
+                      backgroundImage: MemoryImage(
+                        userInfo.image!,
+                      ),
+                    ),
+                  )
+                : const SizedBox(),
+          ),
         ],
       ),
     );

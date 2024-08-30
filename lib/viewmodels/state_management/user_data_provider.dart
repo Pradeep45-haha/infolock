@@ -79,4 +79,10 @@ class UserDataProvider extends ChangeNotifier {
       debugPrint("from UserDataProvider method pickImage => ${e.toString()}");
     }
   }
+
+  removeImage()
+  {
+    currentProfileImage = null;
+    notifyListeners();
+  }
 }
