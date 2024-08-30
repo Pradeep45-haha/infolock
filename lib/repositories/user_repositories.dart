@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:infolock/models/user_info.dart';
-import 'package:infolock/services/local.dart';
+import 'package:infolock/services/local_user.dart';
 
 class UserRepository {
   final LocalService localService;
@@ -22,7 +22,13 @@ class UserRepository {
     }
   }
 
-  updateUser(UserInfo userInfo) {}
+  updateUser(UserInfo userInfo, int index)async {
+    try {
+      await localService.update(index, userInfo);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   deleteUser(UserInfo userInfo) {}
 

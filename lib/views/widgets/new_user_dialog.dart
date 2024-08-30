@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:infolock/models/user_info.dart';
 import 'package:infolock/themes.dart';
@@ -5,18 +7,22 @@ import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
 import 'package:provider/provider.dart';
 
 class NewUserDialog extends StatelessWidget {
-  const NewUserDialog({super.key});
+  final UserInfo? userInfoToEdit;
+  const NewUserDialog({super.key, this.userInfoToEdit});
 
   @override
   Widget build(BuildContext context) {
-    return const Dialog(
-      child: NewUserForm(),
+    return Dialog(
+      child: NewUserForm(
+        userInfoToEdit: userInfoToEdit,
+      ),
     );
   }
 }
 
 class NewUserForm extends StatefulWidget {
-  const NewUserForm({super.key});
+  final UserInfo? userInfoToEdit;
+  const NewUserForm({super.key, this.userInfoToEdit});
 
   @override
   State<NewUserForm> createState() => _NewUserFormState();
@@ -26,6 +32,7 @@ class _NewUserFormState extends State<NewUserForm> {
   late TextEditingController nameController;
   late TextEditingController ageController;
   late TextEditingController phoneNumberController;
+  Uint8List? userImage;
 
   @override
   void initState() {
@@ -33,6 +40,17 @@ class _NewUserFormState extends State<NewUserForm> {
     nameController = TextEditingController();
     ageController = TextEditingController();
     phoneNumberController = TextEditingController();
+    if (widget.userInfoToEdit != null) {
+      nameController.text = widget.userInfoToEdit!.name;
+      ageController.text = widget.userInfoToEdit!.age.toString();
+      phoneNumberController.text =
+          widget.userInfoToEdit!.numbers!.first.toString();
+      if (widget.userInfoToEdit!.image != null) {
+        context
+            .read<UserDataProvider>()
+            .addImage(widget.userInfoToEdit!.image!);
+      }
+    }
   }
 
   @override
@@ -61,43 +79,17 @@ class _NewUserFormState extends State<NewUserForm> {
               ),
             ),
           ),
-          context.watch<UserDataProvider>().currentProfileImage != null
-              ? Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 160,
-                      backgroundImage: MemoryImage(
-                        context.watch<UserDataProvider>().currentProfileImage!,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: IconButton(
-                          onPressed: () {
-                            context.read<UserDataProvider>().removeImage();
-                          },
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                          )),
-                    )
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Add Profile Picture"),
-                    IconButton(
-                      onPressed: () {
-                        context.read<UserDataProvider>().pickImage();
-                      },
-                      icon: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(Icons.add),
-                      ),
-                    )
-                  ],
-                ),
+          context.watch<UserDataProvider>().editMode
+              ? context.watch<UserDataProvider>().currentProfileImage == null
+                  ? const AddImage()
+                  : UserProfile(
+                      userImage:
+                          context.watch<UserDataProvider>().currentProfileImage)
+              : (context.watch<UserDataProvider>().currentProfileImage != null
+                  ? UserProfile(
+                      userImage:
+                          context.watch<UserDataProvider>().currentProfileImage)
+                  : const AddImage()),
           Padding(
             padding: primaryPadding.copyWith(top: 36),
             child: TextFormField(
@@ -165,23 +157,29 @@ class _NewUserFormState extends State<NewUserForm> {
                     if (nameController.text.isNotEmpty &&
                         ageController.text.isNotEmpty &&
                         phoneNumberController.text.isNotEmpty) {
-                      context.read<UserDataProvider>().addUser(
-                            UserInfo(
-                              age: int.parse(ageController.text),
-                              name: nameController.text,
-                              numbers: [
-                                int.parse(phoneNumberController.text),
-                              ],
-                            ),
-                          );
+                      UserInfo userInfo = UserInfo(
+                        age: int.parse(ageController.text),
+                        name: nameController.text,
+                        numbers: [
+                          int.parse(phoneNumberController.text),
+                        ],
+                      );
+                      if (context.read<UserDataProvider>().editMode) {
+                        context.read<UserDataProvider>().editUser(
+                            context.read<UserDataProvider>().editingUserIdx!,
+                            userInfo);
+                      }
+                      context.read<UserDataProvider>().addUser(userInfo);
                       Navigator.of(context).pop();
                     }
                   },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Add",
-                      style: TextStyle(
+                      context.watch<UserDataProvider>().editMode
+                          ? "Update"
+                          : "Add",
+                      style: const TextStyle(
                         color: Colors.purple,
                         fontSize: 18,
                       ),
@@ -193,6 +191,66 @@ class _NewUserFormState extends State<NewUserForm> {
           )
         ],
       ),
+    );
+  }
+}
+
+class AddImage extends StatelessWidget {
+  const AddImage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text("Add Profile Picture"),
+        IconButton(
+          onPressed: () {
+            context.read<UserDataProvider>().pickImage();
+          },
+          icon: const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Icon(Icons.add),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class UserProfile extends StatelessWidget {
+  const UserProfile({
+    super.key,
+    required this.userImage,
+  });
+
+  final Uint8List? userImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 160,
+          backgroundImage: MemoryImage(
+            userImage!,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: IconButton(
+            onPressed: () {
+              context.read<UserDataProvider>().removeImage();
+            },
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

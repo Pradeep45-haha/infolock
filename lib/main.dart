@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infolock/models/user_info.dart';
 import 'package:infolock/repositories/user_repositories.dart';
-import 'package:infolock/services/local.dart';
+import 'package:infolock/services/local_user.dart';
 import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
 import 'package:infolock/views/pages/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';

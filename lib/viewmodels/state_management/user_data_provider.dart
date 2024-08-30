@@ -18,6 +18,8 @@ class UserDataProvider extends ChangeNotifier {
   List<UserInfo> usersInfo = [];
   bool gettingData = false;
   Uint8List? currentProfileImage;
+  bool editMode = false;
+  int? editingUserIdx;
 
   getAllUsers() async {
     try {
@@ -61,6 +63,18 @@ class UserDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  editUser(int index, UserInfo newUserInfo) async {
+    try {
+      if (index > usersInfo.length - 1) {
+        throw NoSuchUserTile();
+      }
+      await _userRepository.updateUser(newUserInfo, index);
+    } catch (e) {
+      debugPrint("exception from edit user => ${e.toString()}");
+    }
+    notifyListeners();
+  }
+
   pickImage() async {
     try {
       Uint8List? profileImage = await _imageRepository.getImage();
@@ -80,9 +94,31 @@ class UserDataProvider extends ChangeNotifier {
     }
   }
 
-  removeImage()
-  {
+  setEditMode(bool mode) {
+    if (usersInfo.isNotEmpty) {
+      editMode = mode;
+      notifyListeners();
+    }
+  }
+
+  toogleEditMode() {
+    if (usersInfo.isNotEmpty) {
+      editMode = !editMode;
+      notifyListeners();
+    }
+  }
+
+  removeImage() {
     currentProfileImage = null;
     notifyListeners();
+  }
+
+  addImage(Uint8List image) {
+    currentProfileImage = image;
+  }
+
+  setEditingUserIdx(int idx)
+  {
+    editingUserIdx = idx;
   }
 }

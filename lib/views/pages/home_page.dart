@@ -6,7 +6,6 @@ import 'package:infolock/views/widgets/user_info_card.dart';
 import 'package:provider/provider.dart';
 import '../../themes.dart';
 
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -14,9 +13,29 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 8.0,
+              right: 8.0,
+            ),
+            child: IconButton(
+                iconSize: 28,
+                hoverColor: Colors.lightGreen,
+                onPressed: () {
+                  context.read<UserDataProvider>().toogleEditMode();
+                },
+                icon: const Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                )),
+          )
+        ],
         backgroundColor: Colors.purple,
-        title: const Text(
-          "Personal Info",
+        title: Text(
+          context.watch<UserDataProvider>().editMode == true
+              ? "Edit Mode"
+              : "Personal Info",
           style: titleTextStyle,
         ),
         centerTitle: true,
@@ -27,20 +46,41 @@ class HomePage extends StatelessWidget {
                 color: Colors.purple,
               ),
             )
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: ListView.builder(
-                  itemCount: context.watch<UserDataProvider>().usersInfo.length,
-                  itemBuilder: (context, index) {
-                    UserInfo userInfo =
-                        context.watch<UserDataProvider>().usersInfo[index];
-                    return UserInfoCard(userInfo: userInfo);
-                  },
-                ),
+          : Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: context.watch<UserDataProvider>().usersInfo.length,
+                itemBuilder: (context, index) {
+                  UserInfo userInfo =
+                      context.watch<UserDataProvider>().usersInfo[index];
+                  return GestureDetector(
+                    onTap: () {
+                      if (context.read<UserDataProvider>().editMode) {
+                        context
+                            .read<UserDataProvider>()
+                            .setEditingUserIdx(index);
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return NewUserDialog(
+                              userInfoToEdit: userInfo,
+                            );
+                          },
+                        );
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8.0,
+                        bottom: 12,
+                      ),
+                      child: UserInfoCard(userInfo: userInfo),
+                    ),
+                  );
+                },
               ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
