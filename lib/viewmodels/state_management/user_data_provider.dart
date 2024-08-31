@@ -117,8 +117,7 @@ class UserDataProvider extends ChangeNotifier {
     currentProfileImage = image;
   }
 
-  setEditingUserIdx(int idx)
-  {
+  setEditingUserIdx(int idx) {
     editingUserIdx = idx;
   }
 }
