@@ -68,10 +68,14 @@ class UserDataProvider extends ChangeNotifier {
       if (index > usersInfo.length - 1) {
         throw NoSuchUserTile();
       }
+      newUserInfo.image = currentProfileImage;
+      currentProfileImage = null;
       await _userRepository.updateUser(newUserInfo, index);
+      await getAllUsers();
     } catch (e) {
       debugPrint("exception from edit user => ${e.toString()}");
     }
+    editingUserIdx = null;
     notifyListeners();
   }
 

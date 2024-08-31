@@ -54,6 +54,14 @@ class _NewUserFormState extends State<NewUserForm> {
   }
 
   @override
+  void dispose() {
+    nameController.dispose();
+    ageController.dispose();
+    phoneNumberController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Form(
       child: Column(
@@ -163,11 +171,14 @@ class _NewUserFormState extends State<NewUserForm> {
                         numbers: [
                           int.parse(phoneNumberController.text),
                         ],
+                        
                       );
                       if (context.read<UserDataProvider>().editMode) {
                         context.read<UserDataProvider>().editUser(
                             context.read<UserDataProvider>().editingUserIdx!,
                             userInfo);
+                            Navigator.of(context).pop();
+                            return;
                       }
                       context.read<UserDataProvider>().addUser(userInfo);
                       Navigator.of(context).pop();

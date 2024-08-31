@@ -84,22 +84,24 @@ class HomePage extends StatelessWidget {
               ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: IconButton(
-        style: floatingButtonStyle,
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return const NewUserDialog();
-            },
-          );
-        },
-        icon: const Icon(
-          Icons.add,
-          size: floatingIconSize,
-          color: floatingIconColor,
-        ),
-      ),
+      floatingActionButton: context.watch<UserDataProvider>().editMode
+          ? null
+          : IconButton(
+              style: floatingButtonStyle,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const NewUserDialog();
+                  },
+                );
+              },
+              icon: const Icon(
+                Icons.add,
+                size: floatingIconSize,
+                color: floatingIconColor,
+              ),
+            ),
     );
   }
 }
