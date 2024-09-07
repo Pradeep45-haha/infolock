@@ -36,7 +36,7 @@ class UserDataProvider extends ChangeNotifier {
 
   getAllUsers() async {
     try {
-      gettingData = true;
+      gettingData = true; 
       notifyListeners();
       List<UserInfo>? newUserInfoList = await _userRepository.getUsers();
       newUserInfoList != null ? usersInfo = (newUserInfoList) : null;
@@ -177,3 +177,4 @@ class UserDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
