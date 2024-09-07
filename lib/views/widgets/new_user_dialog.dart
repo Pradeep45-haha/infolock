@@ -171,14 +171,13 @@ class _NewUserFormState extends State<NewUserForm> {
                         numbers: [
                           int.parse(phoneNumberController.text),
                         ],
-                        
                       );
                       if (context.read<UserDataProvider>().editMode) {
                         context.read<UserDataProvider>().editUser(
                             context.read<UserDataProvider>().editingUserIdx!,
                             userInfo);
-                            Navigator.of(context).pop();
-                            return;
+                        Navigator.of(context).pop();
+                        return;
                       }
                       context.read<UserDataProvider>().addUser(userInfo);
                       Navigator.of(context).pop();

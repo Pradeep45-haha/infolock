@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:infolock/core/custom_exception.dart';
 import 'package:infolock/models/user_info.dart';
 import 'package:infolock/repositories/user_repositories.dart';
+import 'package:infolock/viewmodels/state_management/state.dart';
 
 class UserDataProvider extends ChangeNotifier {
   final UserRepository _userRepository;
   final ImageRepository _imageRepository;
+
   UserDataProvider(
       {required UserRepository userRepository,
       required ImageRepository imageRepository})
@@ -16,10 +18,21 @@ class UserDataProvider extends ChangeNotifier {
 
   //
   List<UserInfo> usersInfo = [];
+  List<int> userToDelete = [];
   bool gettingData = false;
+  bool deleteMode = false;
   Uint8List? currentProfileImage;
+  bool deleteAllUser = false;
   bool editMode = false;
   int? editingUserIdx;
+  AppState appState = AppState.adding;
+
+  changeStateTo(AppState state) {
+    if (!(appState == state)) {
+      appState = state;
+      notifyListeners();
+    }
+  }
 
   getAllUsers() async {
     try {
@@ -123,5 +136,44 @@ class UserDataProvider extends ChangeNotifier {
 
   setEditingUserIdx(int idx) {
     editingUserIdx = idx;
+  }
+
+  deleteUser() async {
+    try {
+      for (var element in userToDelete) {
+        await _userRepository.deleteUser(element);
+      }
+      userToDelete = [];
+      await getAllUsers();
+    } catch (e) {
+      debugPrint("from Userdataprovider method delete user => ${e.toString()}");
+    }
+    notifyListeners();
+  }
+
+  addUserToDelete(int idx) {
+    userToDelete.add(idx);
+    notifyListeners();
+  }
+
+  addAllUserToDelete(int idx) async {
+    deleteAllUser = true;
+    notifyListeners();
+  }
+
+  removeUserFromDelete(int idx) {
+    userToDelete.remove(idx);
+    if (userToDelete.isEmpty) {
+      toogleDeleteMode();
+    }
+    notifyListeners();
+  }
+
+  toogleDeleteMode() {
+    if (deleteMode) {
+      userToDelete = [];
+    }
+    deleteMode = !deleteMode;
+    notifyListeners();
   }
 }

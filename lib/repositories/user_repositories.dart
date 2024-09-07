@@ -22,7 +22,7 @@ class UserRepository {
     }
   }
 
-  updateUser(UserInfo userInfo, int index)async {
+  updateUser(UserInfo userInfo, int index) async {
     try {
       await localService.update(index, userInfo);
     } catch (e) {
@@ -30,7 +30,13 @@ class UserRepository {
     }
   }
 
-  deleteUser(UserInfo userInfo) {}
+  deleteUser(int index) async {
+    try {
+      await localService.delete(index);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   deleteAllUser() {}
 }

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:infolock/models/user_info.dart';
+import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
+import 'package:provider/provider.dart';
 // import 'package:infolock/themes.dart';
+
+const selectedBorderColor = Colors.red;
+const deSelectedBorderColor = Colors.purple;
 
 class UserInfoCard extends StatelessWidget {
   final UserInfo userInfo;
@@ -9,6 +14,21 @@ class UserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color? borderColor;
+    List<String> val = key.toString().split("[<");
+    val = val[1].split(">]");
+    int keyVal = int.parse(val[0]);
+    UserDataProvider userDataProvider =
+        Provider.of<UserDataProvider>(context, listen: true);
+    if (userDataProvider.deleteMode) {
+      if (userDataProvider.userToDelete.contains(keyVal)) {
+        borderColor = selectedBorderColor;
+      } else {
+        borderColor = deSelectedBorderColor;
+      }
+    } else {
+      borderColor = deSelectedBorderColor;
+    }
     double maxWidth = MediaQuery.of(context).size.width;
     double currentWidth = maxWidth > 300 ? 300 : maxWidth;
 
@@ -21,7 +41,7 @@ class UserInfoCard extends StatelessWidget {
             margin: const EdgeInsets.only(top: 140),
             padding: const EdgeInsets.only(top: 120),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.purple, width: 2),
+              border: Border.all(color: borderColor, width: 2),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(12),
                 bottomRight: Radius.circular(12),
@@ -52,9 +72,9 @@ class UserInfoCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.purple,
-                      borderRadius: BorderRadius.only(
+                    decoration: BoxDecoration(
+                      color: borderColor,
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(8),
                         bottomRight: Radius.circular(8),
                       ),
@@ -119,12 +139,17 @@ class UserInfoCard extends StatelessWidget {
           Positioned(
             left: (currentWidth / 2) - 120,
             child: userInfo.image != null
-                ? Material(
-                    elevation: 8,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(120),
-                    ),
-                    shadowColor: Colors.purple,
+                ? Container(
+                    decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 4,
+                              blurStyle: BlurStyle.normal,
+                              color: borderColor,
+                              spreadRadius: 0.1)
+                        ],
+                        shape: BoxShape.circle,
+                        border: Border.all(color: borderColor, width: 2)),
                     child: CircleAvatar(
                       radius: 120,
                       backgroundImage: MemoryImage(

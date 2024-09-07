@@ -11,6 +11,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UserDataProvider userDataProvider =
+        Provider.of<UserDataProvider>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -20,16 +22,17 @@ class HomePage extends StatelessWidget {
               right: 8.0,
             ),
             child: IconButton(
-                iconSize: 28,
-                hoverColor: Colors.lightGreen,
-                onPressed: () {
-                  context.read<UserDataProvider>().toogleEditMode();
-                },
-                icon: const Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                )),
-          )
+              iconSize: 28,
+              hoverColor: Colors.lightGreen,
+              onPressed: () {
+                context.read<UserDataProvider>().toogleEditMode();
+              },
+              icon: const Icon(
+                Icons.edit,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ],
         backgroundColor: Colors.purple,
         title: Text(
@@ -57,7 +60,20 @@ class HomePage extends StatelessWidget {
                   UserInfo userInfo =
                       context.watch<UserDataProvider>().usersInfo[index];
                   return GestureDetector(
+                    onLongPress: () {
+                      userDataProvider.toogleDeleteMode();
+                      userDataProvider.addUserToDelete(index);
+                    },
                     onTap: () {
+                      if (userDataProvider.deleteMode) {
+                        if (userDataProvider.userToDelete.contains(index)) {
+                          userDataProvider.removeUserFromDelete(index);
+                          return;
+                        } else {
+                          userDataProvider.addUserToDelete(index);
+                          return;
+                        }
+                      }
                       if (context.read<UserDataProvider>().editMode) {
                         context
                             .read<UserDataProvider>()
@@ -77,7 +93,10 @@ class HomePage extends StatelessWidget {
                         top: 8.0,
                         bottom: 12,
                       ),
-                      child: UserInfoCard(userInfo: userInfo),
+                      child: UserInfoCard(
+                        userInfo: userInfo,
+                        key: ValueKey(index),
+                      ),
                     ),
                   );
                 },
