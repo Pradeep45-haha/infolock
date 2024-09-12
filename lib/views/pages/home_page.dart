@@ -13,7 +13,10 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserDataProvider userDataProvider =
+        Provider.of<UserDataProvider>(context, listen: false);
+    UserDataProvider listenUserDataProvider =
         Provider.of<UserDataProvider>(context, listen: true);
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -22,29 +25,14 @@ class HomePage extends StatelessWidget {
               left: 8.0,
               right: 8.0,
             ),
-            child: IconButton(
-              iconSize: 28,
-              hoverColor: Colors.lightGreen,
-              onPressed: () {
-                context.read<UserDataProvider>().toogleEditMode();
-              },
-              icon: const Icon(
-                Icons.edit,
-                color: Colors.white,
-              ),
-            ),
+            child: actionButton1(context),
           ),
         ],
         backgroundColor: Colors.purple,
-        title: Text(
-          context.watch<UserDataProvider>().appState == AppState.editing
-              ? "Edit Mode"
-              : "Personal Info",
-          style: titleTextStyle,
-        ),
+        title: appTitle(listenUserDataProvider),
         centerTitle: true,
       ),
-      body: context.watch<UserDataProvider>().appState == AppState.loading
+      body: listenUserDataProvider.appState == AppState.loading
           ? const Center(
               child: CircularProgressIndicator(
                 color: Colors.purple,
@@ -56,10 +44,9 @@ class HomePage extends StatelessWidget {
               ),
               child: ListView.builder(
                 padding: const EdgeInsets.all(12),
-                itemCount: context.watch<UserDataProvider>().usersInfo.length,
+                itemCount: listenUserDataProvider.usersInfo.length,
                 itemBuilder: (context, index) {
-                  UserInfo userInfo =
-                      context.watch<UserDataProvider>().usersInfo[index];
+                  UserInfo userInfo = listenUserDataProvider.usersInfo[index];
                   return GestureDetector(
                     onLongPress: () {
                       userDataProvider.toogleDeleteMode();
@@ -69,17 +56,12 @@ class HomePage extends StatelessWidget {
                       if (userDataProvider.appState == AppState.deleting) {
                         if (userDataProvider.userToDelete.contains(index)) {
                           userDataProvider.removeUserFromDelete(index);
-                          return;
                         } else {
                           userDataProvider.addUserToDelete(index);
-                          return;
                         }
                       }
-                      if (context.read<UserDataProvider>().appState ==
-                          AppState.editing) {
-                        context
-                            .read<UserDataProvider>()
-                            .setEditingUserIdx(index);
+                      if (userDataProvider.appState == AppState.editing) {
+                        userDataProvider.setEditingUserIdx(index);
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -105,25 +87,80 @@ class HomePage extends StatelessWidget {
               ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton:
-          context.watch<UserDataProvider>().appState == AppState.editing
-              ? null
-              : IconButton(
-                  style: floatingButtonStyle,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const NewUserDialog();
-                      },
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.add,
-                    size: floatingIconSize,
-                    color: floatingIconColor,
-                  ),
-                ),
+      floatingActionButton: floatingIconButton(context),
     );
+  }
+
+  IconButton actionButton1(BuildContext context) {
+    return IconButton(
+      iconSize: 28,
+      hoverColor: Colors.lightGreen,
+
+      onPressed: () {
+        context.read<UserDataProvider>().toogleEditMode();
+      },
+      icon: const Icon(
+        Icons.edit,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Text appTitle(UserDataProvider listenUserDataProvider) {
+    String title = "";
+    if (listenUserDataProvider.appState == AppState.editing) {
+      title = "Edit Mode";
+    } else if (listenUserDataProvider.appState == AppState.deleting) {
+      title = "Delete Mode";
+    } else {
+      title = "Personal Info";
+    }
+    return Text(
+      title,
+      style: titleTextStyle,
+    );
+  }
+
+  Widget? floatingIconButton(BuildContext context) {
+    UserDataProvider userDataProvider =
+        Provider.of<UserDataProvider>(context, listen: false);
+    UserDataProvider listenUserDataProvider =
+        Provider.of<UserDataProvider>(context, listen: true);
+
+    onPressedCallback() {
+      if (userDataProvider.appState == AppState.loaded) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const NewUserDialog();
+          },
+        );
+      } else if (userDataProvider.appState == AppState.deleting) {
+        userDataProvider.deleteUser();
+      }
+    }
+
+    if (listenUserDataProvider.appState == AppState.deleting) {
+      return IconButton(
+        style: floatingButtonStyle,
+        onPressed: onPressedCallback,
+        icon: const Icon(
+          Icons.delete,
+          size: floatingIconSize,
+          color: floatingIconColor,
+        ),
+      );
+    } else if (listenUserDataProvider.appState == AppState.loaded) {
+      return IconButton(
+        style: floatingButtonStyle,
+        onPressed: onPressedCallback,
+        icon: const Icon(
+          Icons.add,
+          size: floatingIconSize,
+          color: floatingIconColor,
+        ),
+      );
+    }
+    return null;
   }
 }

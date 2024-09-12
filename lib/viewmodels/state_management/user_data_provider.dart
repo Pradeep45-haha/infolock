@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:infolock/core/custom_exception.dart';
 import 'package:infolock/models/user_info.dart';
@@ -28,6 +27,9 @@ class UserDataProvider extends ChangeNotifier {
 
   changeStateTo(AppState state) {
     if (!(appState == state)) {
+      if (appState == AppState.deleting && appState != state) {
+        userToDelete.clear();
+      }
       appState = state;
       notifyListeners();
     }
@@ -170,7 +172,7 @@ class UserDataProvider extends ChangeNotifier {
 
   toogleDeleteMode() {
     if (appState == AppState.deleting) {
-      userToDelete = [];
+      userToDelete.clear();
       changeStateTo(AppState.loaded);
     } else {
       changeStateTo(AppState.deleting);

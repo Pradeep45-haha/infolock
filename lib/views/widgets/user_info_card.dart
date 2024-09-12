@@ -4,7 +4,6 @@ import 'package:infolock/models/user_info.dart';
 import 'package:infolock/viewmodels/state_management/state.dart';
 import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
 import 'package:provider/provider.dart';
-// import 'package:infolock/themes.dart';
 
 const selectedBorderColor = Colors.red;
 const deSelectedBorderColor = Colors.purple;
@@ -32,6 +31,7 @@ class UserInfoCard extends StatelessWidget {
     }
     double maxWidth = MediaQuery.of(context).size.width;
     double currentWidth = maxWidth > 300 ? 300 : maxWidth;
+    double topConatinerPadding = userInfo.image == null ? 0.0 : 120.0;
 
     return Container(
       decoration: const BoxDecoration(color: Colors.white),
@@ -39,8 +39,8 @@ class UserInfoCard extends StatelessWidget {
         children: [
           Container(
             constraints: BoxConstraints(maxWidth: currentWidth),
-            margin: const EdgeInsets.only(top: 140),
-            padding: const EdgeInsets.only(top: 120),
+            margin: EdgeInsets.only(top: topConatinerPadding + 20),
+            padding: EdgeInsets.only(top: topConatinerPadding),
             decoration: BoxDecoration(
               border: Border.all(color: borderColor, width: 2),
               borderRadius: const BorderRadius.only(
@@ -137,29 +137,32 @@ class UserInfoCard extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-            left: (currentWidth / 2) - 120,
-            child: userInfo.image != null
-                ? Container(
+          userInfo.image != null
+              ? Positioned(
+                  left: (currentWidth / 2) - 120,
+                  child: Container(
                     decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              blurRadius: 4,
-                              blurStyle: BlurStyle.normal,
-                              color: borderColor,
-                              spreadRadius: 0.1)
-                        ],
-                        shape: BoxShape.circle,
-                        border: Border.all(color: borderColor, width: 2)),
+                      boxShadow: [
+                        BoxShadow(
+                            blurRadius: 4,
+                            blurStyle: BlurStyle.normal,
+                            color: borderColor,
+                            spreadRadius: 0.1)
+                      ],
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: borderColor,
+                        width: 2,
+                      ),
+                    ),
                     child: CircleAvatar(
                       radius: 120,
                       backgroundImage: MemoryImage(
                         userInfo.image!,
                       ),
                     ),
-                  )
-                : const SizedBox(),
-          ),
+                  ))
+              : const SizedBox()
         ],
       ),
     );
