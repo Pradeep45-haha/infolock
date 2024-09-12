@@ -19,11 +19,10 @@ class UserDataProvider extends ChangeNotifier {
   //
   List<UserInfo> usersInfo = [];
   List<int> userToDelete = [];
-  bool gettingData = false;
-  bool deleteMode = false;
+
   Uint8List? currentProfileImage;
   bool deleteAllUser = false;
-  bool editMode = false;
+
   int? editingUserIdx;
   AppState appState = AppState.adding;
 
@@ -36,8 +35,7 @@ class UserDataProvider extends ChangeNotifier {
 
   getAllUsers() async {
     try {
-      gettingData = true; 
-      notifyListeners();
+      changeStateTo(AppState.loading);
       List<UserInfo>? newUserInfoList = await _userRepository.getUsers();
       newUserInfoList != null ? usersInfo = (newUserInfoList) : null;
     } catch (e) {
@@ -49,14 +47,14 @@ class UserDataProvider extends ChangeNotifier {
       debugPrint(
           "exception from UserDataProvider getAllUsers=> ${e.toString()}");
     }
-    gettingData = false;
-    notifyListeners();
+
+    changeStateTo(AppState.loaded);
   }
 
   addUser(UserInfo userInfo) async {
     try {
-      gettingData = true;
-      notifyListeners();
+      changeStateTo(AppState.loading);
+
       debugPrint("from UserDataProvide method addUser");
       if (currentProfileImage != null) {
         userInfo.image = currentProfileImage!;
@@ -72,8 +70,7 @@ class UserDataProvider extends ChangeNotifier {
       }
       debugPrint("exception from UserDataProvider addUser=> ${e.toString()}");
     }
-    gettingData = false;
-    notifyListeners();
+    changeStateTo(AppState.loaded);
   }
 
   editUser(int index, UserInfo newUserInfo) async {
@@ -113,15 +110,17 @@ class UserDataProvider extends ChangeNotifier {
 
   setEditMode(bool mode) {
     if (usersInfo.isNotEmpty) {
-      editMode = mode;
-      notifyListeners();
+      changeStateTo(AppState.editing);
     }
   }
 
   toogleEditMode() {
     if (usersInfo.isNotEmpty) {
-      editMode = !editMode;
-      notifyListeners();
+      if (appState == AppState.editing) {
+        changeStateTo(AppState.loaded);
+      } else {
+        changeStateTo(AppState.editing);
+      }
     }
   }
 
@@ -170,11 +169,11 @@ class UserDataProvider extends ChangeNotifier {
   }
 
   toogleDeleteMode() {
-    if (deleteMode) {
+    if (appState == AppState.deleting) {
       userToDelete = [];
+      changeStateTo(AppState.loaded);
+    } else {
+      changeStateTo(AppState.deleting);
     }
-    deleteMode = !deleteMode;
-    notifyListeners();
   }
 }
-

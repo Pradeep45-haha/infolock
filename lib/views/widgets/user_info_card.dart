@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:infolock/models/user_info.dart';
+import 'package:infolock/viewmodels/state_management/state.dart';
 import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
 import 'package:provider/provider.dart';
 // import 'package:infolock/themes.dart';
@@ -20,7 +21,7 @@ class UserInfoCard extends StatelessWidget {
     int keyVal = int.parse(val[0]);
     UserDataProvider userDataProvider =
         Provider.of<UserDataProvider>(context, listen: true);
-    if (userDataProvider.deleteMode) {
+    if (userDataProvider.appState == AppState.deleting) {
       if (userDataProvider.userToDelete.contains(keyVal)) {
         borderColor = selectedBorderColor;
       } else {

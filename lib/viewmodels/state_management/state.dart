@@ -4,5 +4,4 @@ enum AppState {
   editing,
   adding,
   deleting,
-  exception,
 }

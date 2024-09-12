@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infolock/models/user_info.dart';
+import 'package:infolock/viewmodels/state_management/state.dart';
 import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
 import 'package:infolock/views/widgets/new_user_dialog.dart';
 import 'package:infolock/views/widgets/user_info_card.dart';
@@ -36,14 +37,14 @@ class HomePage extends StatelessWidget {
         ],
         backgroundColor: Colors.purple,
         title: Text(
-          context.watch<UserDataProvider>().editMode == true
+          context.watch<UserDataProvider>().appState == AppState.editing
               ? "Edit Mode"
               : "Personal Info",
           style: titleTextStyle,
         ),
         centerTitle: true,
       ),
-      body: context.watch<UserDataProvider>().gettingData == true
+      body: context.watch<UserDataProvider>().appState == AppState.loading
           ? const Center(
               child: CircularProgressIndicator(
                 color: Colors.purple,
@@ -65,7 +66,7 @@ class HomePage extends StatelessWidget {
                       userDataProvider.addUserToDelete(index);
                     },
                     onTap: () {
-                      if (userDataProvider.deleteMode) {
+                      if (userDataProvider.appState == AppState.deleting) {
                         if (userDataProvider.userToDelete.contains(index)) {
                           userDataProvider.removeUserFromDelete(index);
                           return;
@@ -74,7 +75,8 @@ class HomePage extends StatelessWidget {
                           return;
                         }
                       }
-                      if (context.read<UserDataProvider>().editMode) {
+                      if (context.read<UserDataProvider>().appState ==
+                          AppState.editing) {
                         context
                             .read<UserDataProvider>()
                             .setEditingUserIdx(index);
@@ -103,24 +105,25 @@ class HomePage extends StatelessWidget {
               ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: context.watch<UserDataProvider>().editMode
-          ? null
-          : IconButton(
-              style: floatingButtonStyle,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return const NewUserDialog();
+      floatingActionButton:
+          context.watch<UserDataProvider>().appState == AppState.editing
+              ? null
+              : IconButton(
+                  style: floatingButtonStyle,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return const NewUserDialog();
+                      },
+                    );
                   },
-                );
-              },
-              icon: const Icon(
-                Icons.add,
-                size: floatingIconSize,
-                color: floatingIconColor,
-              ),
-            ),
+                  icon: const Icon(
+                    Icons.add,
+                    size: floatingIconSize,
+                    color: floatingIconColor,
+                  ),
+                ),
     );
   }
 }

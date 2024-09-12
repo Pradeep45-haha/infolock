@@ -1,8 +1,8 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:infolock/models/user_info.dart';
 import 'package:infolock/themes.dart';
+import 'package:infolock/viewmodels/state_management/state.dart';
 import 'package:infolock/viewmodels/state_management/user_data_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -87,7 +87,7 @@ class _NewUserFormState extends State<NewUserForm> {
               ),
             ),
           ),
-          context.watch<UserDataProvider>().editMode
+          context.watch<UserDataProvider>().appState == AppState.editing
               ? context.watch<UserDataProvider>().currentProfileImage == null
                   ? const AddImage()
                   : UserProfile(
@@ -172,7 +172,8 @@ class _NewUserFormState extends State<NewUserForm> {
                           int.parse(phoneNumberController.text),
                         ],
                       );
-                      if (context.read<UserDataProvider>().editMode) {
+                      if (context.read<UserDataProvider>().appState ==
+                          AppState.editing) {
                         context.read<UserDataProvider>().editUser(
                             context.read<UserDataProvider>().editingUserIdx!,
                             userInfo);
@@ -186,7 +187,8 @@ class _NewUserFormState extends State<NewUserForm> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      context.watch<UserDataProvider>().editMode
+                      context.watch<UserDataProvider>().appState ==
+                              AppState.editing
                           ? "Update"
                           : "Add",
                       style: const TextStyle(
